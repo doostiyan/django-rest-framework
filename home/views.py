@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.views import APIView
 
 from home.models import Person, Question
@@ -10,7 +11,7 @@ from permissions import IsOwnerOrReadOnly
 
 
 class Home(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         persons = Person.objects.all()
@@ -19,6 +20,8 @@ class Home(APIView):
 
 
 class QuestionListView(APIView):
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+
     def get(self, request):
         questions = Question.objects.all()
         ser_data = QuestionSerializer(instance=questions, many=True)
@@ -26,7 +29,11 @@ class QuestionListView(APIView):
 
 
 class QuestionCreateView(APIView):
+    """
+    create a new question
+    """
     permission_classes = [IsAuthenticated,]
+    serializer_class = QuestionSerializer
 
     def post(self, request):
         ser_data = QuestionSerializer(data=request.data)
@@ -38,6 +45,7 @@ class QuestionCreateView(APIView):
 
 class QuestionUpdateView(APIView):
     permission_classes = [IsOwnerOrReadOnly]
+
 
     def put(self, request, pk):
         question = Question.objects.get(pk=pk)

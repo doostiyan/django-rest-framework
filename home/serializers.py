@@ -4,7 +4,7 @@ from home.custom_realational_fields import UserEmailRelationalField
 from home.models import Question, Answer
 
 
-class PersonSerializer(serializers.ModelSerializer):
+class PersonSerializer(serializers.Serializer):
     name = serializers.CharField()
     age = serializers.IntegerField()
     email = serializers.EmailField()
@@ -12,7 +12,7 @@ class PersonSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     answer = serializers.SerializerMethodField()
-    user = UserEmailRelationalField()
+    user = UserEmailRelationalField(read_only=True)
 
     class Meta:
         model = Question
