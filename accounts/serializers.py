@@ -16,19 +16,24 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True},
             'email': {'validators': [clean_email]}
-           }
+        }
 
     def create(self, validated_data):
         del validated_data['password2']
-        return User.objects.create_user(**validated_data)
+        return User.objects.create_user(**validated_data)   # به عنوان ارگومان تک تک دیکشنری باز می کنه و میفرسته به create_user
 
-
-    def validate_username(self, value):
+    def validate_username(self, value):  # field-level validation
         if value == 'admin':
             raise serializers.ValidationError('username cant be admin')
         return value
 
-    def validate(self, data):
+    def validate(self, data):   # object-level validation
         if data['password'] != data['password2']:
             raise serializers.ValidationError('passwords must match')
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'

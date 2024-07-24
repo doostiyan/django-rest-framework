@@ -16,7 +16,7 @@ class Home(APIView):
     def get(self, request):
         persons = Person.objects.all()
         ser_data = PersonSerializer(instance=persons, many=True)
-        return Response({'name': 'jack'})
+        return Response(ser_data.data)
 
 
 class QuestionListView(APIView):
@@ -33,7 +33,7 @@ class QuestionCreateView(APIView):
     create a new question
     """
     permission_classes = [IsAuthenticated,]
-    serializer_class = QuestionSerializer
+    serializer_class = QuestionSerializer # برای پرامتر های دیده شدن یهتر سواگر
 
     def post(self, request):
         ser_data = QuestionSerializer(data=request.data)
@@ -46,10 +46,9 @@ class QuestionCreateView(APIView):
 class QuestionUpdateView(APIView):
     permission_classes = [IsOwnerOrReadOnly]
 
-
     def put(self, request, pk):
         question = Question.objects.get(pk=pk)
-        self.check_object_permissions(request, question)
+        self.check_object_permissions(request, question)  # بررسی حتما پرمیشن داخل APIView میخواد
         ser_data = QuestionSerializer(instance=question, data=request.data, partial=True)
         if ser_data.is_valid():
             ser_data.save()
